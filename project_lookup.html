@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Lookup</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.css"/>
+    <style>
+        #map {
+            height: 600px;
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <label for="projectId">Enter Project ID:</label>
+        <input type="text" id="projectId" name="projectId">
+        <button onclick="lookupProject()">Lookup</button>
+    </div>
+    <div id="map"></div>
+
+    <script>
+        var map = L.map('map').setView([0, 0], 2); // Set initial map view
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+
+        var markers = L.layerGroup(); // Layer group for markers
+
+        // Function to add markers to the map
+        function addMarkers(data) {
+            markers.clearLayers(); // Clear existing markers
+            data.forEach(function(item) {
+                var marker = L.marker([item.latitude, item.longitude]).bindPopup(
+                    "Project Name: " + item.projectname + "<br>" +
+                    "Project ID: " + item.project_id + "<br>" +
+                    "Lending Project Cost: " + item.lendingprojectcost + "<br>" +
+                    "Approval Date: " + item.approvalfy + "<br>" +
+                    "Exit Date: " + item.exitfy + "<br>" +
+                    "IEG Outcome: " + item.ieg_outcome
+                );
+                markers.addLayer(marker); // Add marker to layer group
+            });
+            map.addLayer(markers); // Add layer group to map
+        }
+
+        // Function to lookup project by ID
+        function lookupProject() {
+            var projectId = document.getElementById("projectId").value.trim();
+            if (projectId === "") {
+                alert("Please enter a project ID.");
+                return;
+            }
+
+            // Retrieve data from the merged_data variable in your index.html
+            var mergedData = merged_data;
+
+            var project = mergedData.find(function(item) {
+                return item.project_id === projectId;
+            });
+
+            if (project) {
+                map.setView([project.latitude, project.longitude], 10); // Center map on project
+                var marker = L.marker([project.latitude, project.longitude]).addTo(map); // Add marker
+                marker.bindPopup(
+                    "Project Name: " + project.projectname + "<br>" +
+                    "Project ID: " + project.project_id + "<br>" +
+                    "Lending Project Cost: " + project.lendingprojectcost + "<br>" +
+                    "Approval Date: " + project.approvalfy + "<br>" +
+                    "Exit Date: " + project.exitfy + "<br>" +
+                    "IEG Outcome: " + project.ieg_outcome
+                ).openPopup();
+            } else {
+                alert("Project ID not found.");
+            }
+        }
+    </script>
+</body>
+</html>
